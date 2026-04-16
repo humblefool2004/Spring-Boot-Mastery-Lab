@@ -11,7 +11,7 @@ import java.time.LocalDate;
 public class DepartmentUpdateDTO {
     private String title;
 
-    private boolean isActive;
+    private Boolean active;
 
     private LocalDate createdAt;
 }

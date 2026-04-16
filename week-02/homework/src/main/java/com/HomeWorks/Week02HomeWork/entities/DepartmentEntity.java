@@ -1,21 +1,19 @@
 package com.HomeWorks.Week02HomeWork.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
 @Entity
-@Component
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="departments")
 public class DepartmentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,7 +21,7 @@ public class DepartmentEntity {
 
     private String title;
 
-    private boolean isActive;
+    private Boolean active;
 
     private LocalDate createdAt;
 
