@@ -1,50 +1,67 @@
 package com.HomeWorks.Week02HomeWork.controllers;
 
 
-import com.HomeWorks.Week02HomeWork.dto.DepartmentDTO;
-import com.HomeWorks.Week02HomeWork.dto.DepartmentUpdateDTO;
+import com.HomeWorks.Week02HomeWork.dto.*;
 import com.HomeWorks.Week02HomeWork.services.DepartmentService;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/departments")
 public class DepartmentController {
+
     private final DepartmentService departmentService;
+    //If multiple constructors → use @Autowired
     public DepartmentController(DepartmentService departmentService){
         this.departmentService=departmentService;
     }
 
     @GetMapping
-    public List<DepartmentDTO> getAllDepartments(){
-        return departmentService.getAllDepartments();
+    public ResponseEntity<List<DepartmentResponseDTO>> getAllDepartments(){
+        List<DepartmentResponseDTO> list=departmentService.getAllDepartments();
+        return ResponseEntity.ok(list); //200
     }
 
     @PostMapping
-    public DepartmentDTO createNewDepartment(@RequestBody @Valid DepartmentDTO inputDepartment){
-        return departmentService.createNewEmployee(inputDepartment);
+    public ResponseEntity<DepartmentResponseDTO> createNewDepartment(@RequestBody @Valid DepartmentCreateDTO inputDepartment){
+        DepartmentResponseDTO created= departmentService.createNewDepartment(inputDepartment);
+        URI location= ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(created); //201
     }
 
     @PutMapping("/{departmentId}")
-    public DepartmentDTO updateByDepartmentId(@RequestBody @Valid DepartmentDTO inputDepartment,@PathVariable Long departmentId){
-        return departmentService.updateByDepartmentId(inputDepartment,departmentId);
+    public ResponseEntity<DepartmentResponseDTO> updateDepartment(@RequestBody @Valid DepartmentUpdateDTO inputDepartment,
+                                                              @PathVariable Long departmentId){
+        DepartmentResponseDTO updated= departmentService.updateDepartment(inputDepartment,departmentId);
+        return ResponseEntity.ok(updated); //200
     }
 
     @DeleteMapping("/{departmentId}")
-    public Boolean deleteDepartmentById(@PathVariable long departmentId){
-        return departmentService.deleteDepartmentById(departmentId);
+    public ResponseEntity<Void> deleteDepartmentById(@PathVariable long departmentId){
+        departmentService.deleteDepartmentById(departmentId);
+        return ResponseEntity.noContent().build(); //204
     }
 
     @GetMapping("/{departmentId}")
-    public DepartmentDTO getDepartmentById(@PathVariable long departmentId){
-        return departmentService.getDepartmentById(departmentId);
+    public ResponseEntity<DepartmentResponseDTO> getDepartmentById(@PathVariable long departmentId){
+        DepartmentResponseDTO dto= departmentService.getDepartmentById(departmentId);
+        return ResponseEntity.ok(dto); //200
     }
 
     @PatchMapping("/{departmentId}")
-    public DepartmentDTO patchDepartmentById(@PathVariable long departmentId,@RequestBody DepartmentUpdateDTO dto){
-        return departmentService.patchDepartmentById(departmentId,dto);
+    public ResponseEntity<DepartmentResponseDTO> patchDepartmentById(@PathVariable long departmentId,
+                                                             @RequestBody @Valid DepartmentPatchDTO dto){
+        DepartmentResponseDTO updated=departmentService.patchDepartmentById(departmentId,dto);
+        return  ResponseEntity.ok(updated);
     }
 
 }

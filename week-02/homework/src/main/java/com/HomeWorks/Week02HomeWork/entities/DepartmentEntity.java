@@ -1,15 +1,12 @@
 package com.HomeWorks.Week02HomeWork.entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
+@Table(name ="departments")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,12 +14,20 @@ import java.time.LocalDate;
 public class DepartmentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
+    @Column(nullable = false)
     private String title;
 
-    private Boolean active;
+    @Column(nullable = false)  // Requires ModelMapper skipNullEnabled to preserve default
+    private Boolean active = true;
 
+    @Setter(AccessLevel.NONE)
+    @Column(nullable = false, updatable = false)
     private LocalDate createdAt;
 
+    @PrePersist
+    private void initializeCreatedAt(){
+        this.createdAt=LocalDate.now();
+    }
 }

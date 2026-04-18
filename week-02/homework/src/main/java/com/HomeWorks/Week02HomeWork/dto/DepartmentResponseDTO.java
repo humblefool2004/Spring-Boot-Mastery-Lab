@@ -9,15 +9,15 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class DepartmentDTO {
-    private long id;
+@AllArgsConstructor
+public class DepartmentResponseDTO {
+
+    private Long id;
 
     private String title;
 
     private Boolean active;
 
     private LocalDate createdAt;
-
 }

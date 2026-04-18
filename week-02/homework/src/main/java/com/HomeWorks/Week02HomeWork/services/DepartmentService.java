@@ -1,7 +1,7 @@
 package com.HomeWorks.Week02HomeWork.services;
 
-import com.HomeWorks.Week02HomeWork.dto.DepartmentDTO;
-import com.HomeWorks.Week02HomeWork.dto.DepartmentUpdateDTO;
+import com.HomeWorks.Week02HomeWork.exceptions.ResourceNotFoundException;
+import com.HomeWorks.Week02HomeWork.dto.*;
 import com.HomeWorks.Week02HomeWork.entities.DepartmentEntity;
 import com.HomeWorks.Week02HomeWork.repositories.DepartmentRepository;
 import org.modelmapper.ModelMapper;
@@ -22,38 +22,41 @@ public class DepartmentService {
         this.modelMapper=modelMapper;
     }
 
-    public List<DepartmentDTO> getAllDepartments(){
+    public List<DepartmentResponseDTO> getAllDepartments(){
         List<DepartmentEntity> departments = departmentRepository.findAll();
         return departments.stream()
                 .map(departmentEntity -> modelMapper.
-                        map(departmentEntity,DepartmentDTO.class))
+                        map(departmentEntity, DepartmentResponseDTO.class))
                 .collect(Collectors.toList());
     }
 
-    public DepartmentDTO createNewEmployee(DepartmentDTO inputDepartment) {
+    public DepartmentResponseDTO createNewDepartment(DepartmentCreateDTO inputDepartment) {
         DepartmentEntity departmentEntity= modelMapper.map(inputDepartment,DepartmentEntity.class);
-        return modelMapper.map(departmentRepository.save(departmentEntity),DepartmentDTO.class);
+        return modelMapper.map(departmentRepository.save(departmentEntity),DepartmentResponseDTO.class);
     }
 
-    public DepartmentDTO updateByDepartmentId(DepartmentDTO inputDepartment, Long departmentId) {
-        DepartmentEntity departmentEntity=modelMapper.map(inputDepartment,DepartmentEntity.class);
-        departmentEntity.setId(departmentId);
-        return modelMapper.map(departmentRepository.save(departmentEntity),DepartmentDTO.class);
+    public DepartmentResponseDTO updateDepartment(DepartmentUpdateDTO inputDepartment, Long departmentId) {
+
+        DepartmentEntity entity = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+        modelMapper.map(inputDepartment, entity);
+        return modelMapper.map(departmentRepository.save(entity), DepartmentResponseDTO.class);
     }
 
-    public Boolean deleteDepartmentById(long departmentId) {
+    public void deleteDepartmentById(long departmentId) {
+        departmentRepository.findById(departmentId).orElseThrow(()->new ResourceNotFoundException("Department not found"));
         departmentRepository.deleteById(departmentId);
-        return true;
     }
 
-    public DepartmentDTO getDepartmentById(long departmentId) {
-        return modelMapper.map(departmentRepository.getReferenceById(departmentId),DepartmentDTO.class);
+    public DepartmentResponseDTO getDepartmentById(long departmentId) {
+        DepartmentEntity departmentEntity= departmentRepository.findById(departmentId).orElseThrow(()->new ResourceNotFoundException("Department not found"));
+        return modelMapper.map(departmentEntity,DepartmentResponseDTO.class);
     }
 
 
-    public DepartmentDTO patchDepartmentById(long departmentId, DepartmentUpdateDTO dto) {
-        DepartmentEntity departmentEntity= departmentRepository.findById(departmentId).orElseThrow(()->new RuntimeException("Department not found"));
+    public DepartmentResponseDTO patchDepartmentById(long departmentId, DepartmentPatchDTO dto) {
+        DepartmentEntity departmentEntity= departmentRepository.findById(departmentId).orElseThrow(()->new ResourceNotFoundException("Department not found"));
         modelMapper.map(dto,departmentEntity);
-        return modelMapper.map(departmentRepository.save(departmentEntity),DepartmentDTO.class);
+        return modelMapper.map(departmentRepository.save(departmentEntity),DepartmentResponseDTO.class);
     }
 }
